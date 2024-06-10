@@ -62,6 +62,6 @@ td {
     transform: translate(-50%, -50%);
 }
 
-.loading img {
+.loading svg {
     width: 100px;
 }
