@@ -3,8 +3,8 @@ document.addEventListener("DOMContentLoaded", function() {
     const cnpj = urlParams.get('cnpj');
     
     if (cnpj) {
-        mostrarLoading();
-        buscarCNPJ(cnpj);
+        document.getElementById('cnpj-input').value = cnpj;
+        buscarCNPJ();
     }
 
     if (window.self !== window.top) {
@@ -13,21 +13,22 @@ document.addEventListener("DOMContentLoaded", function() {
 });
 
 function ajustarParaIframe() {
-    document.body.classList.add('iframe');
+    document.body.style.fontSize = '12px';
+    const container = document.querySelector('.container');
+    container.style.width = '100%';
+    container.style.height = '100%';
+    container.style.padding = '10px';
+    container.style.boxShadow = 'none';
+    container.style.borderRadius = '0';
 }
 
-function mostrarLoading() {
-    document.getElementById('loading').style.display = 'block';
-    document.getElementById('input-container').style.display = 'none';
-    document.getElementById('result').style.display = 'none';
-}
+async function buscarCNPJ() {
+    const cnpj = document.getElementById('cnpj-input').value;
+    if (!cnpj) {
+        alert('Por favor, insira um CNPJ válido.');
+        return;
+    }
 
-function esconderLoading() {
-    document.getElementById('loading').style.display = 'none';
-    document.getElementById('result').style.display = 'block';
-}
-
-async function buscarCNPJ(cnpj) {
     try {
         const response = await fetch(`https://brasilapi.com.br/api/cnpj/v1/${cnpj}`);
         if (!response.ok) {
@@ -38,17 +39,21 @@ async function buscarCNPJ(cnpj) {
         displayResult(data);
     } catch (error) {
         document.getElementById('result').innerText = 'Erro ao buscar os dados. Verifique o CNPJ e tente novamente.';
-        esconderLoading();
     }
 }
 
 function displayResult(data) {
+    document.getElementById('input-container').style.display = 'none';
+
     const resultDiv = document.getElementById('result');
+    resultDiv.style.display = 'block';
+    const idadeEmpresa = calcularIdadeEmpresa(data.data_inicio_atividade);
+
     resultDiv.innerHTML = `
         <table>
             <tr><td>Razão Social</td><td>${data.razao_social ?? 'Não cadastrado'}</td></tr>
             <tr><td>Nome Fantasia</td><td>${data.nome_fantasia ?? 'Não cadastrado'}</td></tr>
-            <tr><td>Idade da Empresa</td><td>${calcularIdadeEmpresa(data.data_inicio_atividade) ?? 'Não cadastrado'}</td></tr>
+            <tr><td>Idade da Empresa</td><td>${idadeEmpresa ?? 'Não cadastrado'}</td></tr>
             <tr><td>Descrição da Situação Cadastral</td><td>${data.descricao_situacao_cadastral ?? 'Não cadastrado'}</td></tr>
             <tr><td>Descrição do CNAE Fiscal</td><td>${data.cnae_fiscal_descricao ?? 'Não cadastrado'}</td></tr>
             <tr><td>Telefone 1</td><td>${formatPhoneNumber(data.ddd_telefone_1) ?? 'Não cadastrado'}</td></tr>
@@ -57,33 +62,50 @@ function displayResult(data) {
             <tr><td>Capital Social</td><td>${formatCurrency(data.capital_social)}</td></tr>
         </table>
     `;
-
-    esconderLoading();
 }
 
-input {
-    padding: 10px;
-    width: 200px;
-    margin-right: 10px;
+function calcularIdadeEmpresa(dataInicio) {
+    if (!dataInicio) return 'Não cadastrado';
+
+    const dataAtual = new Date();
+    const dataInicioAtividade = new Date(dataInicio);
+    const diferencaAnos = dataAtual.getFullYear() - dataInicioAtividade.getFullYear();
+    const diferencaMeses = dataAtual.getMonth() - dataInicioAtividade.getMonth();
+    const diferencaDias = dataAtual.getDate() - dataInicioAtividade.getDate();
+
+    let anos = diferencaAnos;
+    let meses = diferencaMeses;
+
+    if (diferencaMeses < 0 || (diferencaMeses === 0 && diferencaDias < 0)) {
+        anos--;
+        meses += 12;
+    }
+
+    if (diferencaDias < 0) {
+        meses--;
+        if (meses < 0) {
+            anos--;
+            meses += 12;
+        }
+    }
+
+    return `${anos} anos e ${meses} meses`;
 }
 
-button {
-    padding: 10px;
+function formatPhoneNumber(number) {
+    if (!number) return null;
+
+    const cleaned = number.replace(/\D/g, '');
+    const match = cleaned.match(/^(\d{2})(\d{4,5})(\d{4})$/);
+
+    if (match) {
+        return ['(', match[1], ') ', match[2], '-', match[3]].join('');
+    }
+
+    return number;
 }
 
-#result {
-    text-align: left;
-    display: none;
-    font-size: 12px;
-}
-
-table {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-td {
-    padding: 4px;
-    text-align: left;
-    border-bottom: 1px solid #ddd;
+function formatCurrency(value) {
+    if (!value) return 'Não cadastrado';
+    return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
 }
