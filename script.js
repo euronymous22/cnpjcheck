@@ -6,7 +6,21 @@ document.addEventListener("DOMContentLoaded", function() {
         document.getElementById('cnpj-input').value = cnpj;
         buscarCNPJ();
     }
+
+    if (window.self !== window.top) {
+        ajustarParaIframe();
+    }
 });
+
+function ajustarParaIframe() {
+    document.body.style.fontSize = '12px';
+    const container = document.querySelector('.container');
+    container.style.width = '100%';
+    container.style.height = '100%';
+    container.style.padding = '10px';
+    container.style.boxShadow = 'none';
+    container.style.borderRadius = '0';
+}
 
 async function buscarCNPJ() {
     const cnpj = document.getElementById('cnpj-input').value;
