@@ -3,8 +3,9 @@ document.addEventListener("DOMContentLoaded", function() {
     const cnpj = urlParams.get('cnpj');
     
     if (cnpj) {
-        document.getElementById('cnpj-input').value = cnpj;
-        buscarCNPJ();
+        document.getElementById('container').style.display = 'none';
+        document.getElementById('result-container').style.display = 'block';
+        buscarCNPJ(cnpj);
     }
 
     if (window.self !== window.top) {
@@ -14,7 +15,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
 function ajustarParaIframe() {
     document.body.style.fontSize = '12px';
-    const container = document.querySelector('.container');
+    const container = document.querySelector('#result-container');
     container.style.width = '100%';
     container.style.height = '100%';
     container.style.padding = '10px';
@@ -22,8 +23,10 @@ function ajustarParaIframe() {
     container.style.borderRadius = '0';
 }
 
-async function buscarCNPJ() {
-    const cnpj = document.getElementById('cnpj-input').value;
+async function buscarCNPJ(cnpj) {
+    if (!cnpj) {
+        cnpj = document.getElementById('cnpj-input').value;
+    }
     if (!cnpj) {
         alert('Por favor, insira um CNPJ válido.');
         return;
@@ -43,10 +46,7 @@ async function buscarCNPJ() {
 }
 
 function displayResult(data) {
-    document.getElementById('input-container').style.display = 'none';
-
     const resultDiv = document.getElementById('result');
-    resultDiv.style.display = 'block';
     const idadeEmpresa = calcularIdadeEmpresa(data.data_inicio_atividade);
 
     resultDiv.innerHTML = `
