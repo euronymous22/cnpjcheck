@@ -4,8 +4,7 @@ document.addEventListener("DOMContentLoaded", function() {
     
     if (cnpj) {
         mostrarLoading();
-        document.getElementById('cnpj-input').value = cnpj;
-        buscarCNPJ();
+        buscarCNPJ(cnpj);
     }
 
     if (window.self !== window.top) {
@@ -34,14 +33,7 @@ function esconderLoading() {
     document.getElementById('result').style.display = 'block';
 }
 
-async function buscarCNPJ() {
-    const cnpj = document.getElementById('cnpj-input').value;
-    if (!cnpj) {
-        alert('Por favor, insira um CNPJ válido.');
-        esconderLoading();
-        return;
-    }
-
+async function buscarCNPJ(cnpj) {
     try {
         const response = await fetch(`https://brasilapi.com.br/api/cnpj/v1/${cnpj}`);
         if (!response.ok) {
