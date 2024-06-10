@@ -13,13 +13,7 @@ document.addEventListener("DOMContentLoaded", function() {
 });
 
 function ajustarParaIframe() {
-    document.body.style.fontSize = '12px';
-    const container = document.querySelector('.container');
-    container.style.width = '100%';
-    container.style.height = '100%';
-    container.style.padding = '10px';
-    container.style.boxShadow = 'none';
-    container.style.borderRadius = '0';
+    document.body.classList.add('iframe');
 }
 
 function mostrarLoading() {
