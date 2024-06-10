@@ -50,6 +50,7 @@ function displayResult(data) {
     const idadeEmpresa = calcularIdadeEmpresa(data.data_inicio_atividade);
 
     resultDiv.innerHTML = `
+        <h2>Dados do CNPJ</h2>
         <table>
             <tr><td>Razão Social</td><td>${data.razao_social ?? 'Não cadastrado'}</td></tr>
             <tr><td>Nome Fantasia</td><td>${data.nome_fantasia ?? 'Não cadastrado'}</td></tr>
